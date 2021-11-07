@@ -8,57 +8,87 @@
  * LogisticContract - перевозка металла, задержка 6000мс
  */
 import { Currency } from "../task_1";
-import { ISecureVaultRequisites } from "../task_3";
 
-export class SmartContract implements IContract{
+abstract class Contract implements IContract {
+    public readonly id: number;
+    protected _state: ContractState = ContractState.pending;
+    public get state(): ContractState {
+        return this._state;
+    }
+    private _value: Currency;
+    public get value(): Currency {
+        return this._value;
+    }
+    public readonly receiver: { id: number };
+    public readonly sender: { id: number };
 
+    public closeTransfer(): void {
+        this._state = ContractState.close;
+    }
+
+    public rejectTransfer(): void {
+        this._state = ContractState.rejected;
+    }
+
+    public abstract signAndTransfer(): void;
 }
 
-export class BankingContract implements IContract{
-
+export class SmartContract extends Contract {
+    public signAndTransfer(): void {
+        this._state = ContractState.transfer;
+        setTimeout(() => this.closeTransfer(), 3000);
+    }
 }
 
-export class LogisticContract implements IContract{
-
+export class BankingContract extends Contract {
+    public signAndTransfer(): void {
+        this._state = ContractState.close;
+    }
 }
 
+export class LogisticContract extends Contract {
+    public signAndTransfer(): void {
+        this._state = ContractState.transfer;
+        setTimeout(() => this.closeTransfer(), 6000);
+    }
+}
 
-export interface IContract{
+export interface IContract {
     /**
      * Уникальный номер контракта
      */
-    id: number,
+    id: number;
     /**
      * Текущее состояние контракта
      */
-    state: ContractState,
+    state: ContractState;
     /**
      * Предмет контракта
      */
-    value: Currency,
+    value: Currency;
     /**
      * Реквизиты отправителя
      */
-    sender: ISecureVaultRequisites,
+    sender: { id: number };
     /**
      * Реквизиты получателя
      */
-    receiver: ISecureVaultRequisites,
+    receiver: { id: number };
     /**
      * Начало исполнения контракта
      */
-    signAndTransfer: () => void,
+    signAndTransfer: () => void;
     /**
      * Успешное завершение контракта
      */
-    closeTransfer: () => void,
+    closeTransfer: () => void;
     /**
      * Отмена исполнения контракта
      */
-    rejectTransfer: () => void
+    rejectTransfer: () => void;
 }
 
-export enum ContractState{
+export enum ContractState {
     /**
      * Контракт находится в ожидании исполнения
      */
@@ -74,5 +104,5 @@ export enum ContractState{
     /**
      * Контракт отменен, либо отклонен
      */
-    rejected
+    rejected,
 }

@@ -1,3 +1,4 @@
+
 /**
  * Задание 5 - Власть банков
  * В этой задаче вам нужно реализовать класс контроллер
@@ -9,15 +10,28 @@
  */
 import { IContract } from "../task_4";
 import { ISecureVaultRequisites } from "../task_3";
+import { Vault } from "../task_3";
 
 export class BankController{
+    private static _instance: BankController;
+    private readonly _vaultStore: Vault[];
+    private constructor(){
+        this._vaultStore = [];
+    }
+
+    public static get Instance(): BankController{
+        return this._instance || (this._instance = new BankController);
+    }
 
     public registerVault(): ISecureVaultRequisites{
+        const v = new Vault();
+        this._vaultStore.push(v);
 
+        return v;
     }
 
     public proceedContract(contract: IContract) {
-
+        contract.signAndTransfer();
     }
 }
 
