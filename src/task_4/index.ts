@@ -15,12 +15,10 @@ abstract class Contract implements IContract {
     public get state(): ContractState {
         return this._state;
     }
-    private _value: Currency;
-    public get value(): Currency {
-        return this._value;
-    }
-    public readonly receiver: { id: number };
-    public readonly sender: { id: number };
+    public value: Currency;
+
+    public receiver: { id: number };
+    public sender: { id: number };
 
     public closeTransfer(): void {
         this._state = ContractState.close;
